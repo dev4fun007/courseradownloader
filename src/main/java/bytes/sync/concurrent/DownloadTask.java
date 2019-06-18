@@ -1,6 +1,8 @@
 package bytes.sync.concurrent;
 
 
+
+import java.util.logging.Level;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,8 +11,11 @@ import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.util.logging.Logger;
 
 public class DownloadTask implements Runnable{
+
+    private static final Logger logger = Logger.getLogger(DownloadTask.class.getName());
 
     private String urlString;
     private String videoName;
@@ -43,19 +48,24 @@ public class DownloadTask implements Runnable{
                 return;
             }
 
-            System.out.println("Starting to download........");
+            logger.log(Level.INFO, "Download request for video: " + urlString);
+            logger.log(Level.INFO, "Starting to download");
+
             //Using Java nio
             videoReadableByteChannel = Channels.newChannel(url.openStream());
             videoFileOutputStream = new FileOutputStream(videoFile);
             videoFileChannel = videoFileOutputStream.getChannel();
-            System.out.println("Downloading........");
+
+            logger.log(Level.INFO, "Downloading");
+
             videoFileChannel.transferFrom(videoReadableByteChannel, 0, Long.MAX_VALUE);
-            System.out.println("Download complete for video: " + videoName);
+
+            logger.log(Level.INFO, "Download completed");
 
         } catch (MalformedURLException e) {
-            System.out.println("Video URL is malformed: " + e);
+            logger.log(Level.SEVERE, "Video URL is malformed: " + urlString, e);
         } catch (IOException e) {
-            System.out.println("Download IO error: " + e);
+            logger.log(Level.SEVERE, "Unable to download video: " + urlString, e);
         } finally {
             try {
                 if(videoReadableByteChannel != null) {
@@ -68,7 +78,7 @@ public class DownloadTask implements Runnable{
                     videoFileOutputStream.close();
                 }
             } catch (IOException e) {
-                System.out.println("Error closing streams: " + e);
+                logger.log(Level.SEVERE, "Error closing streams", e);
             }
         }
     }
@@ -77,9 +87,4 @@ public class DownloadTask implements Runnable{
         path = path.replaceAll("[:;?\"<>|]", "");
         return path;
     }
-
-    private void saveVideoInfoOnError(String videoName, String videoUrl) {
-
-    }
-
 }

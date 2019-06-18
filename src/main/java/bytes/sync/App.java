@@ -1,16 +1,8 @@
 package bytes.sync;
 
 import bytes.sync.selenium.Scrapper;
-import bytes.sync.util.DownloadUtil;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
-/**
- * Hello world!
- *
- */
-public class App 
+public class App
 {
 
     private static String courseOverviewUrl = "learn/real-time-streaming-big-data/home/welcome";
@@ -22,6 +14,5 @@ public class App
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        //DownloadUtil.getInstance().downloadFile(null,"","");
     }
 }
