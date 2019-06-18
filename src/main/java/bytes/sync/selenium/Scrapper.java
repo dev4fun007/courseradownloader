@@ -12,6 +12,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import java.util.List;
 import java.util.Random;
 
+
 public class Scrapper {
 
     private static final String CHROME_PROFILE_ARGUMENT = "user-data-dir=C:\\Users\\katakuri\\AppData\\Local\\Google\\Chrome\\User Data\\Default";
@@ -60,7 +61,7 @@ public class Scrapper {
             //Create folder for this week
             FileUtil.createWeekFolder(courseName, "week " + weekIndex);
 
-            randomWait();
+            randomWait(5000);
 
             //Get the first video link to navigate to
             driver.findElementsByClassName("rc-ModuleSection").get(0)
@@ -68,7 +69,7 @@ public class Scrapper {
                     .findElement(By.tagName("a"))
                     .click();
 
-            randomWait();
+            randomWait(2000);
 
             //We are in the lectures page - left pane contains different lessons and videos
             List<WebElement> collapsibleLessons = driver.findElements(By.className("rc-CollapsibleLesson"));
@@ -78,6 +79,13 @@ public class Scrapper {
                 String pathTillNow = FileUtil.createLessonFolder(courseName, "week "+weekIndex, lessonName);
 
                 List<WebElement> lessonItems = lesson.findElements(By.tagName("li"));
+
+                //If the lesson items are not expanded - click and expand them
+                if(lessonItems == null || lessonItems.size() == 0) {
+                    lesson.click();
+                    randomWait(1000);
+                    lessonItems = lesson.findElements(By.tagName("li"));
+                }
                 for(WebElement item : lessonItems) {
                     WebElement aTag = item.findElement(By.tagName("a"));
                     if(aTag.getAttribute("href").contains("lecture")) {
@@ -85,7 +93,7 @@ public class Scrapper {
                         item.click();
 
                         //This will load the video on the right side - wait for a while
-                        randomWait();
+                        randomWait(5000);
 
                         String videoName = driver.findElementByClassName("video-name").getText();
                         //This will grab the first video link - mp4
@@ -94,21 +102,22 @@ public class Scrapper {
                         DownloadHelper.submitDownloadTask(downloadTask);
 
                         //Wait before clicking on something else - make it more human
-                        randomWait();
+                        randomWait(2000);
                     }
                 }
             }
 
         }
 
-        driver.close();
+        driver.quit();
+        DownloadHelper.shutdownExecutorService();
     }
 
 
-    private static void randomWait() {
+    private static void randomWait(int minimumWait) {
         try {
             //Wait for some time - make it natural
-            Thread.sleep(5000 + 1000 * random.nextInt(10));
+            Thread.sleep(minimumWait + 1000 * random.nextInt(10));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

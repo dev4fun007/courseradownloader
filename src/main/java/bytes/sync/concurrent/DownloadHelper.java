@@ -12,5 +12,9 @@ public class DownloadHelper {
         downloadExecutorPool.execute(downloadTask);
     }
 
+    public static void shutdownExecutorService() {
+        downloadExecutorPool.shutdown();
+    }
+
 
 }

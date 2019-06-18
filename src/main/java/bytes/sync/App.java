@@ -4,9 +4,8 @@ import bytes.sync.selenium.Scrapper;
 
 public class App
 {
-
-    private static String courseOverviewUrl = "learn/real-time-streaming-big-data/home/welcome";
-    private static String courseName = "Big Data Applications: Real-Time Streaming";
+    private static String courseOverviewUrl = "learn/gcp-big-data-ml-fundamentals/home/welcome";
+    private static String courseName = "Google Cloud Platform Big Data and Machine Learning Fundamentals";
 
     public static void main( String[] args ) {
         try {
@@ -16,3 +15,13 @@ public class App
         }
     }
 }
+
+
+/* Course Downloaded
+learn/big-data-essentials/home/welcome
+learn/real-time-streaming-big-data/home/welcome
+
+
+
+
+ */

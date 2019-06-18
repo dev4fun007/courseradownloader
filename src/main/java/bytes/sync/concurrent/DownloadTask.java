@@ -2,6 +2,7 @@ package bytes.sync.concurrent;
 
 
 
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,6 +17,15 @@ import java.util.logging.Logger;
 public class DownloadTask implements Runnable{
 
     private static final Logger logger = Logger.getLogger(DownloadTask.class.getName());
+    private static FileHandler logFileHandler;
+    static {
+        try {
+            logFileHandler = new FileHandler("log.txt", true);
+            logger.addHandler(logFileHandler);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private String urlString;
     private String videoName;
@@ -48,7 +58,7 @@ public class DownloadTask implements Runnable{
                 return;
             }
 
-            logger.log(Level.INFO, "Download request for video: " + urlString);
+            logger.log(Level.INFO, "Download request for video: " + videoName);
             logger.log(Level.INFO, "Starting to download");
 
             //Using Java nio
@@ -60,12 +70,12 @@ public class DownloadTask implements Runnable{
 
             videoFileChannel.transferFrom(videoReadableByteChannel, 0, Long.MAX_VALUE);
 
-            logger.log(Level.INFO, "Download completed");
+            logger.log(Level.INFO, "Download completed for video: " + videoName);
 
         } catch (MalformedURLException e) {
             logger.log(Level.SEVERE, "Video URL is malformed: " + urlString, e);
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Unable to download video: " + urlString, e);
+            logger.log(Level.SEVERE, "Unable to download video: " + videoName + " url: " + urlString, e);
         } finally {
             try {
                 if(videoReadableByteChannel != null) {
