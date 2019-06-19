@@ -1,6 +1,11 @@
 package bytes.sync;
 
 import bytes.sync.selenium.Scrapper;
+import bytes.sync.util.NotificationUtil;
+
+import java.awt.*;
+
+import static java.lang.System.exit;
 
 public class App
 {
@@ -13,6 +18,8 @@ public class App
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        exit(0);
     }
 }
 

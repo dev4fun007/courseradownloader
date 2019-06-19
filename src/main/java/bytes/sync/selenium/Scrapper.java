@@ -3,6 +3,7 @@ package bytes.sync.selenium;
 import bytes.sync.concurrent.DownloadHelper;
 import bytes.sync.concurrent.DownloadTask;
 import bytes.sync.util.FileUtil;
+import bytes.sync.util.NotificationUtil;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -10,6 +11,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Random;
 
@@ -130,6 +132,8 @@ public class Scrapper {
 
         driver.quit();
         DownloadHelper.shutdownExecutorService();
+        NotificationUtil.showNotification("Scraping", "Video downloads complete", TrayIcon.MessageType.INFO);
+        NotificationUtil.cleanUp();
     }
 
 
