@@ -5,6 +5,7 @@ import bytes.sync.concurrent.DownloadTask;
 import bytes.sync.util.FileUtil;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -16,6 +17,7 @@ import java.util.Random;
 public class Scrapper {
 
     private static final String CHROME_PROFILE_ARGUMENT = "user-data-dir=C:\\Users\\katakuri\\AppData\\Local\\Google\\Chrome\\User Data\\Default";
+    private static final String CHROME_HEADLESS_ARGUMENT = "headless";
     private static final String HOME_URL = "https://www.coursera.org/";
 
     private static Scrapper instance = new Scrapper();
@@ -33,7 +35,7 @@ public class Scrapper {
         WebDriverManager.chromedriver().setup();
 
         ChromeOptions options = new ChromeOptions();
-        options.addArguments(CHROME_PROFILE_ARGUMENT);
+        options.addArguments(CHROME_PROFILE_ARGUMENT, CHROME_HEADLESS_ARGUMENT);
         driver = new ChromeDriver(options);
     }
 
@@ -71,6 +73,15 @@ public class Scrapper {
 
             randomWait(2000);
 
+            //The initial state might be collapsed, first expand the left bar before interacting
+            WebElement collapsedDiv = driver.findElement(By.className("c-item-navigation-container"));
+            if(collapsedDiv.getAttribute("aria-hidden").equals("true")) {
+                //The left navigation is collapsed - expand it
+                WebElement navButton = driver.findElement(By.className("nav-tool-button"));
+                navButton.click();
+                randomWait(1000);
+            }
+
             //We are in the lectures page - left pane contains different lessons and videos
             List<WebElement> collapsibleLessons = driver.findElements(By.className("rc-CollapsibleLesson"));
             for(WebElement lesson : collapsibleLessons) {
@@ -86,23 +97,31 @@ public class Scrapper {
                     randomWait(1000);
                     lessonItems = lesson.findElements(By.tagName("li"));
                 }
+                int itemIndex = 0;
                 for(WebElement item : lessonItems) {
                     WebElement aTag = item.findElement(By.tagName("a"));
                     if(aTag.getAttribute("href").contains("lecture")) {
                         //A video item
-                        item.click();
+                        if(itemIndex != 0)
+                            item.click();
 
                         //This will load the video on the right side - wait for a while
-                        randomWait(5000);
+                        randomWait(8000);
 
-                        String videoName = driver.findElementByClassName("video-name").getText();
-                        //This will grab the first video link - mp4
-                        String videoUrl = driver.findElementByTagName("source").getAttribute("src");
-                        DownloadTask downloadTask = new DownloadTask(videoUrl, videoName, pathTillNow);
-                        DownloadHelper.submitDownloadTask(downloadTask);
+                        try {
+                            String videoName = driver.findElementByClassName("video-name").getText();
+                            //This will grab the first video link - mp4
+                            String videoUrl = driver.findElementByTagName("source").getAttribute("src");
+                            DownloadTask downloadTask = new DownloadTask(videoUrl, videoName, pathTillNow);
+                            DownloadHelper.submitDownloadTask(downloadTask);
 
-                        //Wait before clicking on something else - make it more human
-                        randomWait(2000);
+                            //Wait before clicking on something else - make it more human
+                            randomWait(2000);
+                        } catch (NoSuchElementException e) {
+                            continue;
+                        }
+
+                        itemIndex++;
                     }
                 }
             }
